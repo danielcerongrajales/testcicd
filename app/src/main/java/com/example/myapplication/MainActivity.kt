@@ -12,16 +12,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.ui.theme.MyApplicationTheme
+import android.content.Context
+import android.content.pm.PackageManager
 
+fun getEnvironment(context: Context): String {
+
+    val appInfo = context.packageManager
+        .getApplicationInfo(context.packageName, PackageManager.GET_META_DATA)
+
+    return appInfo.metaData.getString("environment") ?: "qa"
+}
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val env = getEnvironment(this)
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
-                        name = "Android",
+                        name =  "Environment: $env",
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
