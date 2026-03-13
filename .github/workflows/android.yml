@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repo
         uses: actions/checkout@v4
 
       - name: Setup JDK
@@ -19,17 +19,20 @@ jobs:
           java-version: 17
           cache: gradle
 
-      - name: Grant permission
+      - name: Grant execute permission
         run: chmod +x gradlew
 
       - name: Compile project
         run: ./gradlew assembleRelease
 
-      - name: Upload workspace
+      - name: Upload build outputs
         uses: actions/upload-artifact@v4
         with:
-          name: build-workspace
-          path: .
+          name: build-cache
+          path: |
+            app/build
+            gradle
+            gradlew
 
   cd-bundle:
     needs: ci-build
@@ -40,10 +43,13 @@ jobs:
         environment: [qa, stg]
 
     steps:
-      - name: Download workspace
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Download build outputs
         uses: actions/download-artifact@v4
         with:
-          name: build-workspace
+          name: build-cache
 
       - name: Setup JDK
         uses: actions/setup-java@v4
@@ -51,6 +57,9 @@ jobs:
           distribution: temurin
           java-version: 17
           cache: gradle
+
+      - name: Grant execute permission
+        run: chmod +x gradlew
 
       - name: Change environment in manifest
         run: |
